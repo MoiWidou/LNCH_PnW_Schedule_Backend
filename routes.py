@@ -62,7 +62,7 @@ def delete_member(
 # Getting Members on DB for the PnW Members
 # =====================
 
-@router.get("/members")
+@router.get("/members", response_model=List[MemberResponse])
 def get_members(session: Session = Depends(get_session)):
     statement = select(Member).where(Member.is_active == True)
     results = session.exec(statement).all()
@@ -122,7 +122,7 @@ def create_lnhc_schedule(
         )
 
     # Step 3: save to DB
-    schedule = LNHCSchedule(**payload.model_dump()())
+    schedule = LNHCSchedule(**payload.model_dump())
 
     return SchedulingService.save(session, schedule)
 
@@ -149,7 +149,7 @@ def create_tangway_schedule(
             detail="Member already scheduled on this date"
         )
 
-    schedule = TangwaySchedule(**payload.model_dump()())
+    schedule = TangwaySchedule(**payload.model_dump())
 
     return SchedulingService.save(session, schedule)
 
@@ -174,6 +174,6 @@ def create_gr_schedule(
             detail="Member already scheduled on this date"
         )
 
-    schedule = GarciaRosarioSchedule(**payload.model_dump()())
+    schedule = GarciaRosarioSchedule(**payload.model_dump())
 
     return SchedulingService.save(session, schedule)
