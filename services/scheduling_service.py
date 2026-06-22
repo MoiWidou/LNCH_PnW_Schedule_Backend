@@ -1,4 +1,6 @@
 from sqlmodel import Session, or_, select
+from datetime import date
+import uuid
 from models import (
     LNHCSchedule,
     TangwaySchedule,
@@ -9,13 +11,21 @@ from models import (
 class SchedulingService:
 
     @staticmethod
-    def is_member_available(session: Session, member_id: str, date):
+    def is_member_available(session: Session, member_id: uuid.UUID, date: date):
         """
         Returns True if member is NOT scheduled anywhere on that date.
         Returns False if conflict exists.
         """
 
         return not SchedulingService._has_conflict(session, member_id, date)
+
+    @staticmethod
+    def validate_members(session: Session, member_ids: list, date: date) -> bool:
+        for member_id in member_ids:
+            if member_id:
+                if not SchedulingService.is_member_available(session, member_id, date):
+                    return False
+        return True
 
     @staticmethod
     def _has_conflict(session: Session, member_id: str, date) -> bool:
@@ -72,3 +82,10 @@ class SchedulingService:
             return True
 
         return False
+
+    @staticmethod
+    def save(session: Session, obj):
+        session.add(obj)
+        session.commit()
+        session.refresh(obj)
+        return obj
