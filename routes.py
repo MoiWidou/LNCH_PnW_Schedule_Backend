@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Body, Depends, HTTPException
 from sqlmodel import Session, select
 from models import GarciaRosarioSchedule, LNHCSchedule, Member, TangwaySchedule
 from db import engine
@@ -14,6 +14,49 @@ def get_session():
     with Session(engine) as session:
         yield session
 
+# =====================
+# Creating Members on DB for the PnW Members
+# =====================
+
+@router.post("/members")
+def create_member(
+    payload: dict = Body(...),
+    session: Session = Depends(get_session)
+):
+    name = payload.get("name")
+
+    if not name:
+        raise HTTPException(status_code=400, detail="Name is required")
+
+    member = Member(
+        name=name,
+        is_active=True
+    )
+
+    session.add(member)
+    session.commit()
+    session.refresh(member)
+
+    return member
+
+# =====================
+# Deleting members endpoint
+# =====================
+@router.delete("/members/{member_id}")
+def delete_member(
+    member_id: uuid.UUID,
+    session: Session = Depends(get_session)
+):
+    member = session.get(Member, member_id)
+
+    if not member:
+        raise HTTPException(status_code=404, detail="Member not found")
+
+    member.is_active = False
+    session.add(member)
+    session.commit()
+
+    return {"message": "deleted"}
 
 # =====================
 # Getting Members on DB for the PnW Members
