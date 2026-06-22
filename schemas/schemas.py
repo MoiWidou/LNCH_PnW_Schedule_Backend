@@ -2,6 +2,7 @@ from pydantic import BaseModel
 from datetime import date
 from typing import Optional
 import uuid
+from uuid import UUID
 
 class LNHCScheduleCreate(BaseModel):
     date: date
