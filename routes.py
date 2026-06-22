@@ -2,7 +2,7 @@ from fastapi import APIRouter, Body, Depends, HTTPException
 from sqlmodel import Session, select
 from models import GarciaRosarioSchedule, LNHCSchedule, Member, TangwaySchedule
 from db import engine
-from schemas.schemas import GarciaRosarioScheduleCreate, TangwayScheduleCreate, LNHCScheduleCreate
+from schemas.schemas import GarciaRosarioScheduleCreate, MemberResponse, TangwayScheduleCreate, LNHCScheduleCreate
 from services.scheduling_service import SchedulingService
 from datetime import date
 import uuid
