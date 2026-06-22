@@ -51,7 +51,11 @@ class TangwaySchedule(SQLModel, table=True):
     musician_id: Optional[uuid.UUID] = None
     multimedia_id: Optional[uuid.UUID] = None
     sound_tech_id: Optional[uuid.UUID] = None
-
+    created_at: datetime = Field(
+        default_factory=datetime.utcnow,
+        sa_column=Column(DateTime, default=datetime.utcnow)
+    )
+    
 class GarciaRosarioSchedule(SQLModel, table=True):
     __tablename__ = "garcia_rosario_schedules"
 
@@ -64,3 +68,7 @@ class GarciaRosarioSchedule(SQLModel, table=True):
 
     singer_id: Optional[uuid.UUID] = None
     musicians_id: Optional[uuid.UUID] = None
+    created_at: datetime = Field(
+        default_factory=datetime.utcnow,
+        sa_column=Column(DateTime, default=datetime.utcnow)
+    )
