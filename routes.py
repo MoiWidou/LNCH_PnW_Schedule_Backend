@@ -1,3 +1,5 @@
+from typing import List
+
 from fastapi import APIRouter, Body, Depends, HTTPException
 from sqlmodel import Session, select
 from models import GarciaRosarioSchedule, LNHCSchedule, Member, TangwaySchedule
@@ -177,3 +179,112 @@ def create_gr_schedule(
     schedule = GarciaRosarioSchedule(**payload.model_dump())
 
     return SchedulingService.save(session, schedule)
+
+# ================
+# GET ENDPOINTS FOR CHURCHES
+# ================
+@router.get("/lnhc")
+def get_lnhc_schedules(session: Session = Depends(get_session)):
+    statement = select(LNHCSchedule)
+    return session.exec(statement).all()
+
+@router.get("/tangway")
+def get_tangway_schedules(session: Session = Depends(get_session)):
+    statement = select(TangwaySchedule)
+    return session.exec(statement).all()
+
+@router.get("/garcia-rosario")
+def get_gr_schedules(session: Session = Depends(get_session)):
+    statement = select(GarciaRosarioSchedule)
+    return session.exec(statement).all()
+
+# =====================
+# Updating Schedule LNCH
+# =====================
+@router.put("/lnhc/{schedule_id}")
+def update_lnhc_schedule(
+    schedule_id: int,
+    payload: LNHCScheduleCreate, # Reusing schema or create a specific update schema
+    session: Session = Depends(get_session)
+):
+    schedule = session.get(LNHCSchedule, schedule_id)
+    if not schedule:
+        raise HTTPException(status_code=404, detail="Schedule not found")
+
+    # Gather assigned member IDs for conflict validations
+    member_ids = [
+        payload.song_leader_id, payload.backup_id, payload.lead_guitar_id,
+        payload.acoustic_id, payload.bass_id, payload.keyboard_id,
+        payload.drummer_id, payload.sound_tech_id, payload.easy_worship_id,
+    ]
+    # Filter out None/empty values so we only check actual personnel
+    member_ids = [m_id for m_id in member_ids if m_id is not None]
+
+    # Validate conflicts (ignoring checks if they are already on this row)
+    if not SchedulingService.validate_members(session, member_ids, payload.date, ignore_schedule_id=schedule_id):
+        raise HTTPException(status_code=400, detail="Roster member conflict detected on this date")
+
+    # Update database fields dynamically
+    for key, value in payload.model_dump(exclude_unset=True).items():
+        setattr(schedule, key, value)
+
+    session.add(schedule)
+    session.commit()
+    session.refresh(schedule)
+    return schedule
+
+
+# =====================
+# Updating Schedule Tangway
+# =====================
+@router.put("/tangway/{schedule_id}")
+def update_tangway_schedule(
+    schedule_id: int,
+    payload: TangwayScheduleCreate,
+    session: Session = Depends(get_session)
+):
+    schedule = session.get(TangwaySchedule, schedule_id)
+    if not schedule:
+        raise HTTPException(status_code=404, detail="Schedule not found")
+
+    member_ids = [payload.song_leader_id, payload.musician_id, payload.multimedia_id, payload.sound_tech_id]
+    member_ids = [m_id for m_id in member_ids if m_id is not None]
+
+    if not SchedulingService.validate_members(session, member_ids, payload.date, ignore_schedule_id=schedule_id):
+        raise HTTPException(status_code=400, detail="Roster member conflict detected on this date")
+
+    for key, value in payload.model_dump(exclude_unset=True).items():
+        setattr(schedule, key, value)
+
+    session.add(schedule)
+    session.commit()
+    session.refresh(schedule)
+    return schedule
+
+
+# =====================
+# Updating Schedule Garcia/Rosario
+# =====================
+@router.put("/garcia-rosario/{schedule_id}")
+def update_gr_schedule(
+    schedule_id: int,
+    payload: GarciaRosarioScheduleCreate,
+    session: Session = Depends(get_session)
+):
+    schedule = session.get(GarciaRosarioSchedule, schedule_id)
+    if not schedule:
+        raise HTTPException(status_code=404, detail="Schedule not found")
+
+    member_ids = [payload.singer_id, payload.musicians_id]
+    member_ids = [m_id for m_id in member_ids if m_id is not None]
+
+    if not SchedulingService.validate_members(session, member_ids, payload.date, ignore_schedule_id=schedule_id):
+        raise HTTPException(status_code=400, detail="Roster member conflict detected on this date")
+
+    for key, value in payload.model_dump(exclude_unset=True).items():
+        setattr(schedule, key, value)
+
+    session.add(schedule)
+    session.commit()
+    session.refresh(schedule)
+    return schedule
