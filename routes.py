@@ -18,7 +18,7 @@ def get_session():
 # Creating Members on DB for the PnW Members
 # =====================
 
-@router.post("/members")
+@router.post("/members", response_model=MemberResponse)
 def create_member(
     payload: dict = Body(...),
     session: Session = Depends(get_session)

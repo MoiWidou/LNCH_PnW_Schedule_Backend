@@ -28,3 +28,8 @@ class GarciaRosarioScheduleCreate(BaseModel):
 
     singer_id: Optional[uuid.UUID] = None
     musicians_id: Optional[uuid.UUID] = None
+
+class MemberResponse(BaseModel):
+    id: UUID
+    name: str
+    is_active: bool
