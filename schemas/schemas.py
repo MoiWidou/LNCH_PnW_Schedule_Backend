@@ -6,15 +6,15 @@ from uuid import UUID
 
 class LNHCScheduleCreate(BaseModel):
     date: date
-    song_leader_id: Optional[uuid.UUID]
-    backup_id: Optional[uuid.UUID]
-    lead_guitar_id: Optional[uuid.UUID]
-    acoustic_id: Optional[uuid.UUID]
-    bass_id: Optional[uuid.UUID]
-    keyboard_id: Optional[uuid.UUID]
-    drummer_id: Optional[uuid.UUID]
-    sound_tech_id: Optional[uuid.UUID]
-    easy_worship_id: Optional[uuid.UUID]
+    song_leader_id: Optional[uuid.UUID] = None 
+    backup_id: Optional[uuid.UUID] = None 
+    lead_guitar_id: Optional[uuid.UUID] = None 
+    acoustic_id: Optional[uuid.UUID] = None 
+    bass_id: Optional[uuid.UUID] = None 
+    keyboard_id: Optional[uuid.UUID] = None 
+    drummer_id: Optional[uuid.UUID] = None 
+    sound_tech_id: Optional[uuid.UUID] = None 
+    easy_worship_id: Optional[uuid.UUID] = None 
 
 class TangwayScheduleCreate(BaseModel):
     date: date

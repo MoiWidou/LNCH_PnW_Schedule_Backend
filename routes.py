@@ -96,14 +96,11 @@ def check_availability(
 # =====================
 # Adding Schedule LNCH
 # =====================
-
 @router.post("/lnhc")
 def create_lnhc_schedule(
     payload: LNHCScheduleCreate,
     session: Session = Depends(get_session)
 ):
-
-    # Step 1: gather all members in the schedule
     member_ids = [
         payload.song_leader_id,
         payload.backup_id,
@@ -115,35 +112,35 @@ def create_lnhc_schedule(
         payload.sound_tech_id,
         payload.easy_worship_id,
     ]
+    # FIX HERE: Filter out None values for unassigned slots
+    member_ids = [m_id for m_id in member_ids if m_id is not None]
 
-    # Step 2: conflict check
     if not SchedulingService.validate_members(session, member_ids, payload.date):
         raise HTTPException(
             status_code=400,
             detail="Member already scheduled on this date"
         )
 
-    # Step 3: save to DB
     schedule = LNHCSchedule(**payload.model_dump())
-
     return SchedulingService.save(session, schedule)
+
 
 # =====================
 # Adding Schedule Tangway
 # =====================
-
 @router.post("/tangway")
 def create_tangway_schedule(
     payload: TangwayScheduleCreate,
     session: Session = Depends(get_session)
 ):
-
     member_ids = [
         payload.song_leader_id,
         payload.musician_id,
         payload.multimedia_id,
         payload.sound_tech_id,
     ]
+    # FIX HERE: Filter out None values
+    member_ids = [m_id for m_id in member_ids if m_id is not None]
 
     if not SchedulingService.validate_members(session, member_ids, payload.date):
         raise HTTPException(
@@ -152,23 +149,23 @@ def create_tangway_schedule(
         )
 
     schedule = TangwaySchedule(**payload.model_dump())
-
     return SchedulingService.save(session, schedule)
+
 
 # =====================
 # Adding Schedule Garcia/Rosario
 # =====================
-
 @router.post("/garcia-rosario")
 def create_gr_schedule(
     payload: GarciaRosarioScheduleCreate,
     session: Session = Depends(get_session)
 ):
-
     member_ids = [
         payload.singer_id,
         payload.musicians_id,
     ]
+    # FIX HERE: Filter out None values
+    member_ids = [m_id for m_id in member_ids if m_id is not None]
 
     if not SchedulingService.validate_members(session, member_ids, payload.date):
         raise HTTPException(
@@ -177,7 +174,6 @@ def create_gr_schedule(
         )
 
     schedule = GarciaRosarioSchedule(**payload.model_dump())
-
     return SchedulingService.save(session, schedule)
 
 # ================
@@ -203,8 +199,8 @@ def get_gr_schedules(session: Session = Depends(get_session)):
 # =====================
 @router.put("/lnhc/{schedule_id}")
 def update_lnhc_schedule(
-    schedule_id: int,
-    payload: LNHCScheduleCreate, # Reusing schema or create a specific update schema
+    schedule_id: str, # 👈 CHANGED from int to str
+    payload: LNHCScheduleCreate,
     session: Session = Depends(get_session)
 ):
     schedule = session.get(LNHCSchedule, schedule_id)
@@ -239,7 +235,7 @@ def update_lnhc_schedule(
 # =====================
 @router.put("/tangway/{schedule_id}")
 def update_tangway_schedule(
-    schedule_id: int,
+    schedule_id: str,
     payload: TangwayScheduleCreate,
     session: Session = Depends(get_session)
 ):
@@ -267,7 +263,7 @@ def update_tangway_schedule(
 # =====================
 @router.put("/garcia-rosario/{schedule_id}")
 def update_gr_schedule(
-    schedule_id: int,
+    schedule_id: str,
     payload: GarciaRosarioScheduleCreate,
     session: Session = Depends(get_session)
 ):
@@ -288,3 +284,53 @@ def update_gr_schedule(
     session.commit()
     session.refresh(schedule)
     return schedule
+
+# =====================
+# Deleting Schedule LNHC
+# =====================
+@router.delete("/lnhc/{schedule_id}")
+def delete_lnhc_schedule(
+    schedule_id: str,
+    session: Session = Depends(get_session)
+):
+    schedule = session.get(LNHCSchedule, schedule_id)
+    if not schedule:
+        raise HTTPException(status_code=404, detail="LNHC Schedule record not found")
+    
+    session.delete(schedule)
+    session.commit()
+    return {"message": "Schedule deleted successfully"}
+
+
+# =====================
+# Deleting Schedule Tangway
+# =====================
+@router.delete("/tangway/{schedule_id}")
+def delete_tangway_schedule(
+    schedule_id: str,
+    session: Session = Depends(get_session)
+):
+    schedule = session.get(TangwaySchedule, schedule_id)
+    if not schedule:
+        raise HTTPException(status_code=404, detail="Tangway Schedule record not found")
+    
+    session.delete(schedule)
+    session.commit()
+    return {"message": "Schedule deleted successfully"}
+
+
+# =====================
+# Deleting Schedule Garcia/Rosario
+# =====================
+@router.delete("/garcia-rosario/{schedule_id}")
+def delete_gr_schedule(
+    schedule_id: str,
+    session: Session = Depends(get_session)
+):
+    schedule = session.get(GarciaRosarioSchedule, schedule_id)
+    if not schedule:
+        raise HTTPException(status_code=404, detail="Garcia/Rosario Schedule record not found")
+    
+    session.delete(schedule)
+    session.commit()
+    return {"message": "Schedule deleted successfully"}
