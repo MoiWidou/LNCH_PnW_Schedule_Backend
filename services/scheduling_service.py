@@ -54,7 +54,8 @@ class SchedulingService:
             LNHCSchedule.date == date,
             or_(
                 LNHCSchedule.song_leader_id == member_id,
-                LNHCSchedule.backup_id == member_id,
+                LNHCSchedule.backup_1_id == member_id, 
+                LNHCSchedule.backup_2_id == member_id,
                 LNHCSchedule.lead_guitar_id == member_id,
                 LNHCSchedule.acoustic_id == member_id,
                 LNHCSchedule.bass_id == member_id,
