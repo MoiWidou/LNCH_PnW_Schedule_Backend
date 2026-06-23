@@ -7,7 +7,8 @@ from uuid import UUID
 class LNHCScheduleCreate(BaseModel):
     date: date
     song_leader_id: Optional[uuid.UUID] = None 
-    backup_id: Optional[uuid.UUID] = None 
+    backup_1_id: Optional[uuid.UUID] = None 
+    backup_2_id: Optional[uuid.UUID] = None
     lead_guitar_id: Optional[uuid.UUID] = None 
     acoustic_id: Optional[uuid.UUID] = None 
     bass_id: Optional[uuid.UUID] = None 

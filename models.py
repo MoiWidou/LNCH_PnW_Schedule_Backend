@@ -24,7 +24,8 @@ class LNHCSchedule(SQLModel, table=True):
     date: date
 
     song_leader_id: Optional[uuid.UUID] = None
-    backup_id: Optional[uuid.UUID] = None
+    backup_1_id: Optional[uuid.UUID] = Field(default=None, foreign_key="members.id")
+    backup_2_id: Optional[uuid.UUID] = Field(default=None, foreign_key="members.id")
     lead_guitar_id: Optional[uuid.UUID] = None
     acoustic_id: Optional[uuid.UUID] = None
     bass_id: Optional[uuid.UUID] = None
