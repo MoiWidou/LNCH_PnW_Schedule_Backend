@@ -103,7 +103,8 @@ def create_lnhc_schedule(
 ):
     member_ids = [
         payload.song_leader_id,
-        payload.backup_id,
+        payload.backup_1_id, 
+        payload.backup_2_id,
         payload.lead_guitar_id,
         payload.acoustic_id,
         payload.bass_id,
@@ -209,7 +210,8 @@ def update_lnhc_schedule(
 
     # Gather assigned member IDs for conflict validations
     member_ids = [
-        payload.song_leader_id, payload.backup_id, payload.lead_guitar_id,
+        payload.song_leader_id, payload.backup_1_id,  
+        payload.backup_2_id, payload.lead_guitar_id,
         payload.acoustic_id, payload.bass_id, payload.keyboard_id,
         payload.drummer_id, payload.sound_tech_id, payload.easy_worship_id,
     ]
